@@ -3,7 +3,7 @@
   "followup_delay_type": "time",
   "followup_delay_value": 1,
   "followup_delay_unit": "hours",
-  "followup_delay_time": "13:30",
+  "followup_delay_time": "14:12",
   "max_followups": 2,
   "email_delay": 5,
   "scheduler_enabled": true,

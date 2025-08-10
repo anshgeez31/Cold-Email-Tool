@@ -335,6 +335,7 @@ def save_env_settings():
         # Update or add environment variables
         env_vars = {
             'EMAIL_ADDRESS': email_address,
+            'EMAIL_PASSWORD': app_password,
             'EMAIL_APP_PASSWORD': app_password,
             'MANAGER_EMAIL': manager_email
         }

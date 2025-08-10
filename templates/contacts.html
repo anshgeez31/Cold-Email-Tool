@@ -81,7 +81,7 @@
                                         <button class="btn btn-sm btn-primary" onclick="updateCustomTime({{ contact.id }})" title="Save custom time">
                                             <i class="fas fa-save"></i>
                                         </button>
-                                        {% if contact.initial_sent_date and not contact.replied and contact.followup_sent_count < 2 %}
+                                        {% if contact.initial_sent_date and not contact.replied %}
                                         <button class="btn btn-sm btn-warning" onclick="stopFollowups({{ contact.id }})" title="Stop follow-ups">
                                             <i class="fas fa-stop"></i>
                                         </button>

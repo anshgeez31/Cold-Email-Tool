@@ -77,17 +77,21 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex gap-1">
                                         <button class="btn btn-sm btn-primary" onclick="updateCustomTime({{ contact.id }})" title="Save custom time">
-                                            <i class="fas fa-save"></i>
+                                            <i class="fas fa-lock"></i>
                                         </button>
                                         {% if contact.initial_sent_date and not contact.replied and contact.followup_sent_count < 2 %}
-                                        <button class="btn btn-sm btn-warning" id="stop-btn-{{ contact.id }}" onclick="stopFollowups({{ contact.id }})" title="Stop follow-ups">
-                                            <i class="fas fa-stop"></i> Stop
+                                        <button class="btn btn-sm btn-success" id="stop-btn-{{ contact.id }}" onclick="stopFollowups({{ contact.id }})" title="Stop follow-ups">
+                                            <i class="fas fa-play"></i>
                                         </button>
                                         {% elif contact.initial_sent_date and not contact.replied and contact.followup_sent_count >= 2 %}
-                                        <button class="btn btn-sm btn-secondary" disabled title="Follow-ups already stopped">
-                                            <i class="fas fa-stop"></i> Stopped
+                                        <button class="btn btn-sm btn-warning" disabled title="Follow-ups already stopped">
+                                            <i class="fas fa-pause"></i>
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-warning" disabled title="No follow-ups active">
+                                            <i class="fas fa-pause"></i>
                                         </button>
                                         {% endif %}
                                         <button class="btn btn-sm btn-danger" onclick="deleteContact({{ contact.id }})" title="Delete contact">
@@ -204,8 +208,8 @@
         const button = document.getElementById(`stop-btn-${contactId}`);
         if (button) {
             button.disabled = true;
-            button.className = 'btn btn-sm btn-secondary';
-            button.innerHTML = '<i class="fas fa-stop"></i> Stopped';
+            button.className = 'btn btn-sm btn-warning';
+            button.innerHTML = '<i class="fas fa-pause"></i>';
             button.title = 'Follow-ups already stopped';
         }
 
@@ -228,8 +232,8 @@
                 // Revert button state on error
                 if (button) {
                     button.disabled = false;
-                    button.className = 'btn btn-sm btn-warning';
-                    button.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                    button.className = 'btn btn-sm btn-success';
+                    button.innerHTML = '<i class="fas fa-play"></i>';
                     button.title = 'Stop follow-ups';
                 }
             }
@@ -239,8 +243,8 @@
             // Revert button state on error
             if (button) {
                 button.disabled = false;
-                button.className = 'btn btn-sm btn-warning';
-                button.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                button.className = 'btn btn-sm btn-success';
+                button.innerHTML = '<i class="fas fa-play"></i>';
                 button.title = 'Stop follow-ups';
             }
         });

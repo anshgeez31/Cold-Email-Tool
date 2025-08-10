@@ -1,6 +1,6 @@
 packager.language = "python3"
 run = "python email_automation.py"
-modules = ["python-3.11"]
+modules = ["python-3.12", "web", "nodejs-20"]
 
 [nix]
 channel = "stable-25_05"
@@ -32,3 +32,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python app.py"
+
+[deployment]
+run = ["sh", "-c", "python email_automation.py"]

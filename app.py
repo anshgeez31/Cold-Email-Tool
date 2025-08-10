@@ -392,6 +392,74 @@ def update_custom_time():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/delete_contact', methods=['POST'])
+def delete_contact():
+    try:
+        data = request.get_json()
+        contact_id = data.get('contact_id')
+        
+        conn = get_db_connection()
+        
+        # Get contact info before deletion for logging
+        contact = conn.execute('SELECT * FROM contacts WHERE id = ?', (contact_id,)).fetchone()
+        if not contact:
+            return jsonify({'success': False, 'error': 'Contact not found'})
+        
+        # Delete from contacts table
+        conn.execute('DELETE FROM contacts WHERE id = ?', (contact_id,))
+        
+        # Delete related log entries
+        conn.execute('DELETE FROM log WHERE contact_id = ?', (contact_id,))
+        
+        # Add to recent activity
+        conn.execute(
+            '''
+            INSERT INTO recent_activity (contact_email, action, timestamp)
+            VALUES (?, ?, ?)
+        ''', (contact['email'], 'Contact deleted', datetime.datetime.now().isoformat()))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/stop_followups', methods=['POST'])
+def stop_followups():
+    try:
+        data = request.get_json()
+        contact_id = data.get('contact_id')
+        
+        conn = get_db_connection()
+        
+        # Get current settings
+        scheduler_settings = scheduler_manager.get_settings()
+        max_followups = scheduler_settings.get('max_followups', 2)
+        
+        # Set followup_sent_count to max to prevent further followups
+        conn.execute(
+            'UPDATE contacts SET followup_sent_count = ? WHERE id = ?',
+            (max_followups, contact_id)
+        )
+        
+        # Get contact email for activity log
+        contact = conn.execute('SELECT email FROM contacts WHERE id = ?', (contact_id,)).fetchone()
+        if contact:
+            # Add to recent activity
+            conn.execute(
+                '''
+                INSERT INTO recent_activity (contact_email, action, timestamp)
+                VALUES (?, ?, ?)
+            ''', (contact['email'], 'Follow-ups stopped', datetime.datetime.now().isoformat()))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/stats')
 def api_stats():
     conn = get_db_connection()

@@ -77,13 +77,17 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
+                                    <div class="d-flex gap-2">
                                         <button class="btn btn-sm btn-primary" onclick="updateCustomTime({{ contact.id }})" title="Save custom time">
                                             <i class="fas fa-save"></i>
                                         </button>
-                                        {% if contact.initial_sent_date and not contact.replied %}
-                                        <button class="btn btn-sm btn-warning" onclick="stopFollowups({{ contact.id }})" title="Stop follow-ups">
-                                            <i class="fas fa-stop"></i>
+                                        {% if contact.initial_sent_date and not contact.replied and contact.followup_sent_count < 2 %}
+                                        <button class="btn btn-sm btn-warning" id="stop-btn-{{ contact.id }}" onclick="stopFollowups({{ contact.id }})" title="Stop follow-ups">
+                                            <i class="fas fa-stop"></i> Stop
+                                        </button>
+                                        {% elif contact.initial_sent_date and not contact.replied and contact.followup_sent_count >= 2 %}
+                                        <button class="btn btn-sm btn-secondary" disabled title="Follow-ups already stopped">
+                                            <i class="fas fa-stop"></i> Stopped
                                         </button>
                                         {% endif %}
                                         <button class="btn btn-sm btn-danger" onclick="deleteContact({{ contact.id }})" title="Delete contact">
@@ -196,6 +200,15 @@
             return;
         }
 
+        // Change button immediately
+        const button = document.getElementById(`stop-btn-${contactId}`);
+        if (button) {
+            button.disabled = true;
+            button.className = 'btn btn-sm btn-secondary';
+            button.innerHTML = '<i class="fas fa-stop"></i> Stopped';
+            button.title = 'Follow-ups already stopped';
+        }
+
         fetch('/stop_followups', {
             method: 'POST',
             headers: {
@@ -209,13 +222,27 @@
         .then(data => {
             if (data.success) {
                 alert('Follow-ups stopped for this contact!');
-                location.reload();
+                // No need to reload since we already updated the button
             } else {
                 alert('Error stopping follow-ups: ' + data.error);
+                // Revert button state on error
+                if (button) {
+                    button.disabled = false;
+                    button.className = 'btn btn-sm btn-warning';
+                    button.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                    button.title = 'Stop follow-ups';
+                }
             }
         })
         .catch(error => {
             alert('Error: ' + error);
+            // Revert button state on error
+            if (button) {
+                button.disabled = false;
+                button.className = 'btn btn-sm btn-warning';
+                button.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                button.title = 'Stop follow-ups';
+            }
         });
     }
 
